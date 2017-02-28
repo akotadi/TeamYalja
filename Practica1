@@ -1,0 +1,345 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+/*
+ * 
+ */
+
+#define TRUE 1
+#define FALSE 0
+typedef char boolean;
+
+typedef struct elemento{
+    char c;
+    float n;
+} elemento;
+
+typedef struct nodo{
+    elemento e;
+    struct nodo *abajo;
+}nodo;
+
+typedef struct pila{
+    nodo* top;
+} pila;
+
+void initialize(pila *s){
+    s->top=NULL;
+    return ;
+}
+
+void push(elemento e,pila *s){
+    nodo* aux;
+    aux=(nodo*)malloc(sizeof(nodo));
+    aux->abajo=s->top;
+    s->top=aux;
+    aux->e=e;
+    return ;
+}
+
+
+elemento pop(pila *s){
+    elemento e;
+    nodo* aux;
+    e=s->top->e;
+    aux=s->top;
+    s->top=s->top->abajo;
+    free(aux);
+    return e;
+}
+
+boolean empty(pila *s){
+    if(s->top == NULL){
+        return TRUE;
+    }
+    return FALSE;
+}
+
+int size(pila *s){
+    int k=0;
+    nodo* aux;
+    aux=s->top;
+    //if(!empty(s)){
+        while(aux != NULL){
+            aux=aux->abajo;
+            k++;
+        }
+        return k;
+    //}
+}
+
+
+elemento top(pila *s){
+    elemento e;
+    e=s->top->e;
+    return e;
+}
+
+
+void destroy (pila *s){
+    nodo* aux;
+    while(s->top != NULL){
+        aux=s->top->abajo;
+        free(s->top);
+        s->top=aux;
+    }
+    return ;
+}
+//****************************************************************************************              P   I   L   A            *************************************************************************************************
+
+void checar(pila *s,char c[]){
+    elemento e;
+    int i;
+    for(i=0; i < strlen(c) ;i++){
+        if(c[i] == '('){
+            e.c='(';
+            push(e,s);
+        }else{
+            if(c[i] == ')'){
+                if(empty(s)){ //empty(s) == TRUE
+                    printf("\nError: Se cerro un parentesis sin abrir otro");
+                    exit(1);
+                }else{
+                    e=pop(s);
+                }  
+            }
+        }
+    }
+    if(empty(s)){ //empty(s) == TRUE
+        printf("\nNumero correcto de parentesis");
+    }else{
+        printf("\nError en la expresion");
+        exit(1);
+    }
+    return ;
+}
+
+void cambio(boolean expre,pila* s,pila* guarda){
+    elemento e;
+    e=pop(s);
+    printf("%c",e.c);
+    push(e,guarda);
+    e.c=expre;
+    push(e,s);
+    return ;
+}
+
+void orden(pila* guarda,pila* inver){
+    elemento e;
+    while(guarda->top != NULL){
+        e=pop(guarda);
+        push(e,inver);
+    }   
+    return ;
+}
+//  *********************************************************************                      F   I   N   I   T   O                         *****************************************************************************************************
+
+void eleccion(elemento e,pila* s,float x1,float x2){
+	elemento r;
+	if(e.c == '+'){
+        r.n= x1+x2;
+        push(r,s);
+	}
+    if(e.c == '-'){
+        r.n= x1-x2;
+    	push(r,s);
+    }
+    if(e.c == '*'){
+        r.n= x1*x2;
+        push(r,s);
+    }
+    if(e.c == '/'){
+        r.n= x1/x2;
+        push(r,s);
+    }
+    if(e.c == '^'){
+        r.n= pow(x1,x2);
+        push(r,s);
+    }
+	return ; 
+}
+
+void sumar(pila* s,pila* inver, float* valores){
+    elemento e;
+    float x1=-1;
+    float x2=-1;
+	
+    if(inver->top != NULL){
+    	if(inver->top->abajo != NULL){
+    		if(inver->top->e.c > 64 && inver->top->abajo->e.c > 64){
+		    	//asigna valores a x1 y x2 y haz la operacion
+		    	e= pop(inver);
+		    	x1=valores[e.c-65];
+		    	e=pop(inver);
+		    	x2=valores[e.c-65];
+		    	e=pop(inver);
+		    	eleccion(e,s,x1,x2);
+		    	sumar(s,inver,valores);	
+			}
+			else{
+				if(inver->top->e.c > 64 && inver->top->abajo->e.c < 64){
+					//saca de la pila un valor y asignalo a x1
+					e=pop(s);
+					x1=e.n;
+					e=pop(inver);
+					x2=valores[e.c-65];
+					e=pop(inver);
+					eleccion(e,s,x1,x2);
+					sumar(s,inver,valores);
+				}
+			}
+		}else{
+			//ES EL ULTIMO OPERADOR EN LA PILA
+			if(inver->top->e.c < 64){
+				e=pop(s);
+				x1=e.n;
+				e=pop(s);
+				x2=e.n;
+				e=pop(inver);
+				eleccion(e,s,x1,x2);
+				sumar(s,inver,valores);
+			}
+		}
+	}else{
+		if(!empty(s)){
+			e=pop(s);
+			printf("\nResultado: %f",e.n);
+			
+		}else{
+			printf("Error con pila de resultado");
+		}		
+	}
+    
+    return ;
+}
+
+int regresaValor(char c){
+	int k=0;
+	if(c == '^'){
+		k=3;
+	}else{
+		if(c == '*' || c == '/'){
+			k=2;
+		}else{
+			if(c == '+' || c == '-'){
+				k=1;
+			}else{
+				k=0;
+			}
+		}
+	}
+	return k;
+}
+
+float* posfijo(pila* pi,char expre[], pila* guarda){ // TIENE QUE REGRESAR UN *INT QUE REGRESE LOS VALORES AL MAIN 
+    elemento e;
+    printf("\n");
+    
+    
+    float* valores;
+    valores=(float*)malloc(26*sizeof(float));
+    
+    int j;
+    for(j=0;j<26;j++){
+        valores[j]=-1;
+    }
+    
+    int i;
+    for(i =0; i< strlen(expre); i++){
+        if(expre[i] == '(' ||expre[i] == '^'||expre[i] == '*' || expre[i] == '/'||expre[i] == '+' || expre[i] == '-'){
+            if(pi->top != NULL){
+				if(regresaValor(pi->top->e.c) >= regresaValor(expre[i])){
+					cambio(expre[i],pi,guarda);
+				}
+				else{
+					e.c=expre[i];
+                    push(e,pi);
+				}
+            }
+            else{
+                e.c=expre[i];
+                push(e,pi);
+            }
+        }
+        else{
+            if(expre[i] == ')'){
+                while(pi->top->e.c != '('){
+                    e=pop(pi);
+                    printf("%c",e.c);
+                    push(e,guarda);
+                }
+                e=pop(pi);
+            }
+            else{
+                e.c=expre[i];
+                printf("%c",expre[i]);
+                push(e,guarda);
+                valores[expre[i]-65]=0;
+            }
+        }
+        // e= NULL;
+    }
+    
+    if(!empty(pi)){
+        while(pi->top != NULL){
+            e=pop(pi);
+            printf("%c",e.c);
+            push(e,guarda);
+        }
+    }
+    
+    int k;
+    for(k =0; k< 26;k++){
+    	if(valores[k] != -1){
+    		printf("\nIntroduzca el valor de %c: ",k+65);
+            scanf("%f",&valores[k]);
+		}
+	}
+    printf("\n");
+    
+    return valores;
+}
+
+void iniciarTodo(pila* s,pila* pi,pila* guarda,pila* inver,pila* sum){
+	initialize(s);// checar parentesis
+    initialize(pi); //ayudar a guardar los operadores en el posfijo
+    initialize(guarda);//guarda lo que se vaya mostrando
+    initialize(inver);//guarda la pila de guarda pero invertida
+	initialize(sum);//realiza las operaciones finales
+	return ;
+}
+void destruirTodo(pila* s,pila* pi,pila* guarda,pila* inver,pila* sum){
+	destroy(sum);
+    destroy(inver);
+    destroy(guarda);
+    destroy(pi);
+    destroy(s);
+	return ;
+}
+
+
+int main() {
+    pila s,pi,guarda,inver,sum;
+    float* valores;
+    boolean expresion[50];
+    
+    iniciarTodo(&s,&pi,&guarda,&inver,&sum);
+    
+    printf("Introduce la cadena: ");
+    scanf("%s",&expresion);
+
+    printf("%s",expresion);
+    checar(&s,expresion);
+	
+    valores=posfijo(&pi,expresion,&guarda);
+    
+    orden(&guarda,&inver);
+    //DESPUES DE ORDENARLOS BIEN ENTONCES YA SE MANDA AL SUMA 
+	sumar(&sum,&inver,valores);
+	
+	destruirTodo(&s,&pi,&guarda,&inver,&sum);
+     return (EXIT_SUCCESS);
+}
