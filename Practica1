@@ -125,36 +125,45 @@ void cambio(boolean expre,pila* s,pila* guarda){
     return ;
 }
 //Saca todos los valores de una pila y los mete a otra para que esten invertidos
-void orden(pila* guarda,pila* inver){
+void orden(pila* guarda,pila* inver,float* valores){
     elemento e;
-    while(guarda->top != NULL){
+    while(!empty(guarda)){
         e=pop(guarda);
+        if(e.c > 64){
+        	e.n=valores[e.c-65];
+		}		
         push(e,inver);
-    }   
+    }
+	printf("TERMINO BIEN BR0");   //(A+B)*(W/C)+F-J-A*(B/I)
     return ;
 }
+
 //	Funcion que realiza la operacion y mete el valor en una pila a parte
-void eleccion(elemento e,pila* s,float x1,float x2){ 
+void eleccion(elemento e,pila* sum){ 
 	elemento r;
+	float x1=pop(sum).n;
+	printf("\nVALOR 1: %f",x1);
+	float x2=pop(sum).n;
+	printf("\nVALOR 1: %f",x2);
 	if(e.c == '+'){
-        r.n= x1+x2;
-        push(r,s);// Mete el valor de la operacion en otra pila
+        r.n= x2+x1;
+        push(r,sum);// Mete el valor de la operacion en otra pila
 	}
     if(e.c == '-'){
-        r.n= x1-x2;
-    	push(r,s);
+        r.n= x2-x1;
+    	push(r,sum);
     }
     if(e.c == '*'){
-        r.n= x1*x2;
-        push(r,s);
+        r.n= x2*x1;
+        push(r,sum);
     }
     if(e.c == '/'){
-        r.n= x1/x2;
-        push(r,s);
+        r.n= x2/x1;
+        push(r,sum);
     }
     if(e.c == '^'){
-        r.n= pow(x1,x2);
-        push(r,s);
+        r.n= pow(x2,x1);
+        push(r,sum);
     }
 	return ; 
 }
@@ -166,103 +175,27 @@ void eleccion(elemento e,pila* s,float x1,float x2){
 	2.-Cuando el tope es un numero y el elemento que le sigue en la pila es un operador, entonces significa que ya hay un valor en la otra pila de valores
 	3.-Cuando el tope de la pila es un operador significa que los dos operandos estan en la otra pila
 */
-void sumar(pila* s,pila* inver, float* valores){
-    elemento e;
-    float x1=-1;
-    float x2=-1;
-	
-    if(inver->top != NULL){//Valida para ver si la pila no esta vacia
-    	if(inver->top->abajo != NULL){//Valida para ver si es el ultimo elemento en la pila
-    		if(inver->top->e.c > 64 && inver->top->abajo->e.c > 64){// Caso1: Dos letras seguidas
-		    	//asigna valores a x1 y x2 haciendo pop, luego saca el operador y los manda a realizar la operacion
-		    	e= pop(inver);
-		    	x1=valores[e.c-65];
-		    	e=pop(inver);
-		    	x2=valores[e.c-65];
-		    	e=pop(inver);
-		    	eleccion(e,s,x1,x2);
-		    	sumar(s,inver,valores);	//Se vuelve a llamar la misma funcion lo que la hace recursiva
-			}
-			else{
-				if(inver->top->e.c > 64 && inver->top->abajo->e.c < 64){//Caso2: Una letra y un operador
-					//saca de la pila un valor y asignalo a x1
-					e=pop(s);//Hace pop de la pila donde se guardan los resultados de las operaciones
-					x1=e.n;
-					e=pop(inver);
-					x2=valores[e.c-65];
-					e=pop(inver);
-					eleccion(e,s,x1,x2);
-					sumar(s,inver,valores);
-				}
-			}
-		}else{
-			//ES EL ULTIMO OPERADOR EN LA PILA
-			if(inver->top->e.c < 64){ //Caso 3: Operador ultimo elemento de la pila
-				e=pop(s);// Se hace pop de los dos resultados que estan en la pila de los valores y se hace la operacion
-				x1=e.n;
-				e=pop(s);
-				x2=e.n;
-				e=pop(inver);
-				eleccion(e,s,x1,x2);
-				sumar(s,inver,valores);
-			}
-		}
-	}else{
-		if(!empty(s)){// Si la pila normal esta vacia y la pila de valores no, entonces ya acabo y solo imprime el ultimo resultado que este en la pola de valores
-			e=pop(s);
-			printf("\nResultado: %f",e.n);
-			
-		}else{
-			printf("Error con pila de resultado");
-		}		
-	}
-    
-    return ;
-}
-/*
-void suma(pila* inver, float* valores){
+
+
+void suma(pila* sum,pila* inver, float* valores){
 	elemento e;
-    float x1=-1;
-    float x2=-1;
-	
-	if(inver->top->abajo != NULL){
-		printf("\nINVER NO ES NULO ");
-		if(x1 == -1){
-			e=pop(inver);
-			if(e.n < 1000000){
-				printf("\nES NULO X1");
-				x1=valores[e.c-65];
-			}else{
-				printf("\nCarac1: %c",e.c);
-				printf("\nValor1: %f",e.n);
-				x1== e.n;
-			}
-			suma(inver,valores);
+	if(!empty(inver)){
+		e=pop(inver);
+		if(e.c > 64){
+			push(e,sum);
+			suma(sum,inver,valores);
 		}
 		else{
-			if(x2 == -1){
-				e=pop(inver);
-				if(e.n < 1000000){
-					printf("\nES NULO X1");
-					x2=valores[e.c-65];
-				}else{
-					printf("\nCarac2: %c",e.c);
-					printf("\nValor2: %f",e.n);
-					x2== e.n;
-					e=pop(inver);
-					eleccion(e,inver,x1,x2);
-					suma(inver,valores);
-				}
-			}	
+			eleccion(e,sum);
+			printf("\nValor de la operacion: %f",top(sum).n);
+			suma(sum,inver,valores);
 		}
-	}
-	else{
-		printf("\nINVER TOP ABAJO ES NULO ");
-		e=pop(inver);
+	}else{
+		e=pop(sum);
 		printf("\nResultado: %f",e.n);
 	}
 	return ;
-}*/
+}
 
 //Funcion que regresa un valor dependiendo del operador que reciba
 //Esto se usa para el posfijo ya que se necesita establecer prioridad de operadores para la entrada en la pila
@@ -276,13 +209,12 @@ int regresaValor(char c){
 		}else{
 			if(c == '+' || c == '-'){
 				k=1;
-			}else{
-				k=0;
 			}
 		}
 	}
 	return k;
 }
+
 //Funcion que transforma la expresion normal a la expresion de tipo posfijo
 float* posfijo(pila* pi,char expre[], pila* guarda){ 
     elemento e;
@@ -291,7 +223,6 @@ float* posfijo(pila* pi,char expre[], pila* guarda){
     
     float* valores;
     valores=(float*)malloc(26*sizeof(float)); // Se crea un arreglo de 26 elementos para guardar los valores de las letras que sean introducidas en la expresion
-    
     int j;
     for(j=0;j<26;j++){
         valores[j]=-1;// Se le pone -1 a cada espacio para saber que no se ha usado esa letra
@@ -300,8 +231,8 @@ float* posfijo(pila* pi,char expre[], pila* guarda){
     int i;
     for(i =0; i< strlen(expre); i++){ // for para ir checando toda la cadena
         if(expre[i] == '(' ||expre[i] == '^'||expre[i] == '*' || expre[i] == '/'||expre[i] == '+' || expre[i] == '-'){ //Validacion para saber si es un elemento que va a ser agregado a la pila
-            if(pi->top != NULL){
-				if(regresaValor(pi->top->e.c) >= regresaValor(expre[i])){ //Si el valor que regresa es mayor o igual que el que esta hasta arriba entonces se produce un cambio
+            if(!empty(pi) && expre[i] != '('){
+				if(regresaValor(top(pi).c) >= regresaValor(expre[i])){ //Si el valor que regresa es mayor o igual que el que esta hasta arriba entonces se produce un cambio
 					cambio(expre[i],pi,guarda);
 				}
 				else{
@@ -316,7 +247,7 @@ float* posfijo(pila* pi,char expre[], pila* guarda){
         }
         else{//Si no es operador que vaya en la pila entonces
             if(expre[i] == ')'){ //Si es un parentesis que cierra entonces se hace pop de todos los elementos hasta que se encuentre el parentesis que abre
-                while(pi->top->e.c != '('){
+                while(top(pi).c != '('){
                     e=pop(pi);
                     printf("%c",e.c);//Se muestran en pantalla los elementos
                     push(e,guarda);//Se guarda en una pila auxiliar el elemento, ya que se ultilizara para hacer la suma despues
@@ -333,7 +264,7 @@ float* posfijo(pila* pi,char expre[], pila* guarda){
     }
     
     if(!empty(pi)){//Mientras la pila con los operadores no este vacia, se imprimiran los que queden para que se termine la expresion
-        while(pi->top != NULL){
+        while(!empty(pi)){
             e=pop(pi);
             printf("%c",e.c);
             push(e,guarda);
@@ -351,6 +282,7 @@ float* posfijo(pila* pi,char expre[], pila* guarda){
     
     return valores;
 }
+
 //Funcion usada para iniciar todas las pilas correspondientes
 void iniciarTodo(pila* s,pila* pi,pila* guarda,pila* inver,pila* sum){
 	initialize(s);// checar parentesis
@@ -386,10 +318,10 @@ int main() {
 	
     valores=posfijo(&pi,expresion,&guarda);
     
-    orden(&guarda,&inver);
+    orden(&guarda,&inver,valores);
     //DESPUES DE ORDENARLOS BIEN ENTONCES YA SE MANDA AL SUMA 
-	suma(&inver,valores);
+	suma(&sum,&inver,valores);
 	
 	destruirTodo(&s,&pi,&guarda,&inver,&sum);
-     return (EXIT_SUCCESS);
+    return (EXIT_SUCCESS);
 }
