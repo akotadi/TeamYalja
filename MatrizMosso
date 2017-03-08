@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+// 
+
+
+// NO TOCAR ESTA FUNCION
+int exp(int x,int n){// funcion magica de los exponentes
+	if(n < 0)
+		return exp(1/x,-n);
+	else if(n == 0)
+		return 1;
+	else if(n == 1)
+		return x;
+	else if(n%2 == 0) 
+		return exp(x*x, n/2);
+	else if(n%2 == 1)
+		return x * exp(x*x,(n-1)/2); 
+	
+}
+
+void transformar(int i, int j,int n, int** arre,int base){ // Si el numero que tiene que ser pivote no es uno, entonces lo transforma a el y a toda la fila
+	int num =0;
+	if(j < n){
+		if(arre[i][j] != 1){
+			num = exp(arre[i][j],base-2);// Encuentra el num por el cual se debe multiplicar para conseguir el 1, se usa la exponenciacion binaria
+			for(int k=0; k < n; k++){
+				arre[i][k]=(arre[i][k]*num) % base;//se multiplica en elemento del arregglo por el numero y se saca el residuo segun la base
+			}
+		}
+	}
+	// multiplicar toda la fila por el k 
+	return ;
+}
+
+void resolver(int i, int j, int m, int n,int** arre,int base){//Resuelve la matriz por algoritmo de Gauss Jordan
+	//int* aux=(int*)malloc(n*sizeof(int));
+	
+	int num=0;
+	//int residuo;
+	if(j < n){
+		for(int k =0;k < m; k++ ){//empieza desde arriba para hacer todo cero menos el pivote
+			if(k != i){//Si llega al pivote no lo hace cero
+				if(arre[k][j] != 0){
+					//residuo = arre[k][j] % base;
+					num = base-arre[k][j];// saca el numero que se le tiene que sumar
+					for(int a=0; a< n; a++){
+						arre[k][a] = (arre[k][a] + (num*(arre[i][a]))) % base;//se multiplica la fila del pivote por el numero y se le suma a la que debe ser cero
+					}
+				}
+			}
+		}
+	}
+	
+	return ;
+}
+
+int** swi(int i, int k,int n,int** arre){//Funcion que cambia dos filas
+	//int aux[3];
+	int* aux=(int*)malloc(n*sizeof(int));
+	
+	for(int j =0; j< n; j++){
+		aux[j]=arre[i][j];
+		arre[i][j]=arre[k][j];
+		arre[k][j]=aux[j];
+	}
+	
+	return arre;
+}
+
+void checar(int i, int j, int m, int n,int** arre,int base){ //Funcion que checa si el primer elemento es 0, si lo es busca una fila en la que no y lo cambia y si no se puede pasa a la siguiente columna
+	int opcion=0;
+	if(j < n){
+		if(arre[i][j] == 0){
+			for(int k=i+1; k < m; k++){
+				if(arre[k][j] != 0){// si encuentra una fila donde no haya un cero entonces los cambia
+					arre=swi(i,k,n,arre);
+					opcion++;
+					break;
+				}
+			}
+			if(opcion == 0){// si pasa por todo el for y no encontro una fila entonces va a la siguiente columna
+				checar(i,j+1,m,n,arre,base);
+			}
+			else{
+				checar(i,j,m,n,arre,base);
+			}
+		}
+		else{
+			transformar(i,j,n,arre,base);//Si elpivote ya es un numero que no es cero entonces manda a llamar las otras funciones
+			resolver(i,j,m,n,arre,base);
+		}
+	}
+	return ;
+}
+
+
+int main(){
+	int** arre;
+	int m,n;
+	printf("Filas: ");
+	scanf("%i",&m);
+	printf("Columnas: ");
+	scanf("%i",&n);
+	
+	arre=(int**)malloc(m*sizeof(int*));
+	
+	for(int i=0; i < n; i++){
+		arre[i]=(int*)malloc((n+1)*sizeof(int));
+	}
+	
+	for(int i =0; i< m; i++){//Introducir los coeficientes, se hace por columnas
+		for(int j =0; j<n ; j++){
+			printf("\nCoeficiente: ");
+			scanf("%i",&arre[i][j]);
+		}
+	}
+	
+	for(int k=0; k < m; k++){//introducir los numeros a los cuales esta igualada la ecuacion, se hace de arriba hacia abajo
+		printf("\nIgualado: ");
+		scanf("%i",&arre[k][n]);
+	}
+	
+	for(int a =0; a < n ;a++){//Manda a llamar a checar en un for hasta que se recorra todas las filas
+		checar(0+a,0+a,3,3,arre,5);	
+	}
+	
+	//printf("Resultado: %i",exp(11,5));
+	for(int i =0; i< 3; i++){
+		for(int j =0; j<3 ; j++){
+			printf("\nRes: %i",arre[i][j]);//Se imprime el resultado, los resultados se quedan guardados en el doble apuntador de arre 
+		}
+	}
+	return 0;
+}
