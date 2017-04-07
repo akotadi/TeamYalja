@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <windows.h>
+#include "TADCola/TADColaDin.h"
+
+
+
+int main(){
+	cola listos,finalizados;
+	int tiempoTotal=0,size;
+	elemento e;
+
+	printf("Numero de procesos: \n");
+	scanf("%i",&size);
+
+	for (int i = 0; i < size; ++i){
+		// Poner los elementos con sus carac en la cola listos
+		printf("Nombre: \n");
+		scanf("%s",e.nombre);
+		printf("Actividad: \n");
+		scanf("%s",e.actividad);
+		printf("ID: \n");
+		scanf("%i",e.id);
+		printf("Tiempo: \n");
+		scanf("%i",e.tiempo_ejecucion);
+	}
+	//Si se debe mostrar el tiempo como disminuye entonces hacemos un for de n veces con un sleep que espere solo una cantidad determinada y un print
+
+	while(!empty(listos)){
+
+		e=dequeue(listos);
+		printf("Nombre: %s Tiempo: %i \n", e.nombre,e.tiempo_ejecucion);
+		tiempoTotal = tiempoTotal + e.tiempo_ejecucion;
+		e.tiempo_ejecucion = tiempoTotal;
+		queue(finalizados,e);//Se cambia solo para imprimir al final
+		e=front(listos);
+		printf("El sig. proceso es: %s",e.nombre);
+		Sleep(e.tiempo_ejecucion);
+
+	}
+	
+	while(!empty(finalizados))
+	{
+		e=dequeue(finalizados);
+		printf("Nombre: %s Tiempo Total: %s \n",e.nombre,e.tiempo_ejecucion);
+	}
+
+	destroy(listos);
+	destroy(finalizados);
+	return 1;
+}
