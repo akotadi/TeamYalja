@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <windows.h>
+#include "TADCola/TADColaDin.h"
+
+#define TIEMPO_BASE 100
+
+int main()
+{
+	char nombre[45];
+	int cant,tiempo_cliente,estado=1,checar=0,tiempo_cont=0,clientes_cont=0;
+	int* tiempo_cajeras;
+	cola* cola_cajeras;
+	elemento e;
+
+	srand(time(NULL));
+
+	printf("Nombre del Supermercado: \n");
+	scanf("%s",&nombre);
+
+	printf("Numero de cajeras: \n");
+	scanf("%i",&cant);
+	
+	tiempo_cajeras=(int*)malloc(cant*sizeof(int));
+	cola_cajeras=(cola*)malloc(cant*sizeof(cola));
+
+	for (int i = 0; i < cant; ++i){
+		Initialize(cola_cajeras[i]);
+		printf("Tiempo para cajera No.%i :\n",i+1);
+		scanf("%i",&tcajeras[i]);
+	}
+	
+
+	printf("Tiempo para clientes:\n");
+	scanf("%i",&tcliente);
+
+	while(estado){
+		Sleep(TIEMPO_BASE);
+		tiempo_cont++;
+
+		for (int i = 0; i < cant; ++i){
+			if (tiempo_cajeras[i] % (TIEMPO_BASE * tiempo_cont) == 0){
+				if (!empty(&cola_cajeras[i])){
+					e=dequeue(&cola_cajeras[i]);
+				}
+			}
+		}
+
+		if(tiempo_cliente % (TIEMPO_BASE * tiempo_cont) == 0){
+			clientes_cont++;
+			e.id=clientes_cont;
+			queue(e,&cola_cajeras[(rand() % cant) + 1]);
+		}
+
+		for (int i = 0; i < cant; ++i){
+			if(empty(&tiempo_cajeras[i])){
+				checar++;
+			}
+		}
+		if(checar == cant){//Ya no hay clientes en ninguna caja
+			printf("El supermercado ha cerrado \n", );
+			break;
+		}
+	}
+	return 0;
+}
