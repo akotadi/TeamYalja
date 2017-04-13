@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <windows.h>
+#include "TADCola/TADColaDin.h"
+
+#define TIEMPO_BASE 100
+
+int checarVacia(cola* cajeras,int n){
+	int aux=-1;
+	for (int i = 0; i < n; ++i){
+		if(empty(&cajeras[i])){
+			aux=i;
+			break;
+		}
+	}
+
+	return aux;
+}
+
+int main(){
+
+	cola clientes,usuarios,preferentes;
+	cola* cajeras;
+	int tc,tu,tp,tiempo=0,clientes_cont=0,aux=0,cont_usu=0;;
+	elemento e;
+
+	while(1){
+		Sleep(TIEMPO_BASE);
+		tiempo++;
+		
+		while(!empty(&preferentes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){
+			e=dequeue(&preferentes);
+			queue(e,&cajeras[checarVacia(cajeras,n)]);
+			cont_usu++;
+		}
+		while(!empty(&clientes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){	
+			e=dequeue(&clientes);
+			queue(e,&cajeras[checarVacia(cajeras,n)]);
+			cont_usu++;
+		}
+		while(!empty(&usuarios) && checarVacia(cajeras,n) != -1){
+			e=dequeue(&usuarios);
+			queue(e,&cajeras[checarVacia(cajeras,n)]);
+			if(cont_usu == 5){
+				cont_usu=0;
+				break;
+			}
+		}
+		
+		
+		if(tiempo % (TIEMPO_BASE * tc) == 0){
+			clientes_cont++;
+			e.id=clientes_cont;
+			queue(e,&clientes);
+		}
+
+		if(tiempo % (TIEMPO_BASE * tu) == 0){
+			clientes_cont++;
+			e.id=clientes_cont;
+			queue(e,&usuarios);
+		}
+
+		if(tiempo % (TIEMPO_BASE * tp) == 0){
+			clientes_cont++;
+			e.id=clientes_cont;
+			queue(e,&preferentes);
+		}
+	}
+
+	return 1;
+}
