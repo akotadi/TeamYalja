@@ -12,53 +12,54 @@ int main()
 	cola* cola_cajeras;
 	elemento e;
 
-	srand(time(NULL));
+	srand(time(NULL));//Se inicia la semilla de random que se usara despues
 
+	//Se pide informacion basica
 	printf("Nombre del Supermercado: \n");
 	scanf("%s",&nombre);
 
 	printf("Numero de cajeras: \n");
 	scanf("%i",&cant);
 	
-	tiempo_cajeras=(int*)malloc(cant*sizeof(int));
-	cola_cajeras=(cola*)malloc(cant*sizeof(cola));
+	tiempo_cajeras=(int*)malloc(cant*sizeof(int));//Se crea un arreglo para almacenar el tiempo que le toma a cada cajera atender
+	cola_cajeras=(cola*)malloc(cant*sizeof(cola));//Se crea un arreglo con las colas necesarias para las cajeras
 
 	for (int i = 0; i < cant; ++i){
 		Initialize(cola_cajeras[i]);
-		printf("Tiempo para cajera No.%i :\n",i+1);
+		printf("Tiempo para cajera No.%i :\n",i+1);//Se piden los tiempos correspondientes
 		scanf("%i",&tcajeras[i]);
 	}
 	
 
-	printf("Tiempo para clientes:\n");
-	scanf("%i",&tcliente);
+	printf("Tiempo para clientes:\n");//Se introduce el tiempo de llegada de los clientes
+	scanf("%i",&tiempo_cliente);
 
 	while(estado){
-		Sleep(TIEMPO_BASE);
-		tiempo_cont++;
+		Sleep(TIEMPO_BASE);//Se espera el tiempo base
+		tiempo_cont++;//Se incrementa el contador para saber cuanto tiempo ha pasado
 
 		for (int i = 0; i < cant; ++i){
-			if (tiempo_cajeras[i] % (TIEMPO_BASE * tiempo_cont) == 0){
-				if (!empty(&cola_cajeras[i])){
+			if (tiempo_cajeras[i] % (TIEMPO_BASE * tiempo_cont) == 0){//Se va recorriendo cada una de las cajas para ver si ya estan en tiempo de desencolar
+				if (!empty(&cola_cajeras[i])){//Si no esta vacia, entonces desencola
 					e=dequeue(&cola_cajeras[i]);
 				}
 			}
 		}
 
-		if(tiempo_cliente % (TIEMPO_BASE * tiempo_cont) == 0){
-			clientes_cont++;
+		if(tiempo_cliente % (TIEMPO_BASE * tiempo_cont) == 0){//Si es tiempo de que llegue un cliente, se le asigna una caja
+			clientes_cont++;//Se incrementa el contador de clientes
 			e.id=clientes_cont;
-			queue(e,&cola_cajeras[(rand() % cant) + 1]);
+			queue(e,&cola_cajeras[(rand() % cant) + 1]);//Se introduce el cliente en alguna cola asignada al azar
 		}
 
-		for (int i = 0; i < cant; ++i){
-			if(empty(&tiempo_cajeras[i])){
+		for (int i = 0; i < cant; ++i){//Loop usado para checar cada una e las cajas
+			if(empty(&tiempo_cajeras[i])){//Si todas las cajas estan vacias, etnonces se puede cerrar el super
 				checar++;
 			}
 		}
-		if(checar == cant){//Ya no hay clientes en ninguna caja
+		if(checar == cant && clientes_cont > 100){//Ya no hay clientes en ninguna caja y ya pasaron mas de 100 clientes
 			printf("El supermercado ha cerrado \n", );
-			break;
+			estado=0;//El supermercado cierra
 		}
 	}
 	return 0;
