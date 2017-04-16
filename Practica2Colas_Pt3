@@ -4,7 +4,7 @@
 
 #define TIEMPO_BASE 100
 
-int checarVacia(cola* cajeras,int n){
+int checarVacia(cola* cajeras,int n){//Funcion que te devuelve la primer caja vacia que encuentra
 	int aux=-1;
 	for (int i = 0; i < n; ++i){
 		if(empty(&cajeras[i])){
@@ -26,27 +26,27 @@ int main(){
 	while(1){
 		Sleep(TIEMPO_BASE);
 		tiempo++;
-		
-		while(!empty(&preferentes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){
+		//Los preferentes tiene preferencia sobre cualquier otro usuario, por eso el while es hasta que ya no haya preferentes
+		while(!empty(&preferentes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){//Mientras haya preferentes, haya alguna caja vacia y no hayan pasado mas de 5 pref o clientes sin pasar algun usuario
 			e=dequeue(&preferentes);
-			queue(e,&cajeras[checarVacia(cajeras,n)]);
-			cont_usu++;
+			queue(e,&cajeras[checarVacia(cajeras,n)]);//Se desencola de la cola original y se pasa a alguna cajera
+			cont_usu++;//Se incremeta en contador para checar que no pasen mas de 5 preferences o clientes sin que pase algun usuario
 		}
-		while(!empty(&clientes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){	
+		while(!empty(&clientes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){	//Lo mismo que el otro
 			e=dequeue(&clientes);
 			queue(e,&cajeras[checarVacia(cajeras,n)]);
 			cont_usu++;
 		}
-		while(!empty(&usuarios) && checarVacia(cajeras,n) != -1){
+		while(!empty(&usuarios) && checarVacia(cajeras,n) != -1){//Lo mismo
 			e=dequeue(&usuarios);
 			queue(e,&cajeras[checarVacia(cajeras,n)]);
-			if(cont_usu == 5){
-				cont_usu=0;
-				break;
-			}
+			//llega aqui despues de que ya hayan pasado 5 preferentes o clientes entonces el contador vuelve a cero
+			cont_usu=0;
+			break;
+			
 		}
 		
-		
+		//IFs usados para insertar elementos a las colas si es que es tiempo de que llegue alguien mas
 		if(tiempo % (TIEMPO_BASE * tc) == 0){
 			clientes_cont++;
 			e.id=clientes_cont;
