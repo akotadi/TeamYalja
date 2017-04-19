@@ -1,55 +1,65 @@
 #include <stdio.h>
 #include <windows.h>
-#include "TADCola/TADColaDin.h"
+#include <time.h>
+#include "TADColaDin.h"
 
 
 
 int main(){
 	cola listos,finalizados;
-	int tiempoTotal=0,size;
+	int tiempoTotal=0,size,esperar;
 	elemento e;
 
 	printf("Numero de procesos: \n");//Se pide el  numero de procesos a realizar
 	scanf("%i",&size);
-
+	Initialize(&listos);
+	Initialize(&finalizados);
 	//Loop que sirve para poner cada una de las carac. de los procesos
 	for (int i = 0; i < size; ++i){
 		// Poner los elementos con sus carac en la cola listos
 		printf("Nombre: \n");
-		scanf("%s",e.nombre);
+		scanf("%s",&e.nombre);
 		printf("Actividad: \n");
-		scanf("%s",e.actividad);
+		scanf("%s",&e.actividad);
 		printf("ID: \n");
-		scanf("%i",e.id);
+		scanf("%i",&e.id);
 		printf("Tiempo: \n");
-		scanf("%i",e.tiempo_ejecucion);
+		scanf("%i",&e.tiempo_ejecucion);
+
+		Queue(&listos,e);
 	}
 	//Si se debe mostrar el tiempo como disminuye entonces hacemos un for de n veces con un sleep que espere solo una cantidad determinada y un print
 
-	while(!empty(&listos)){
+	while(!Empty(&listos)){
 
-		e=dequeue(&listos);//Se saca el proceso que este en la cola de procesos listos para ejecutarse
+		e=Dequeue(&listos);//Se saca el proceso que este en la cola de procesos listos para ejecutarse
 
 		printf("Nombre: %s Tiempo: %i \n", e.nombre,e.tiempo_ejecucion);//Se imprime la informacion del procesos
 		
+		esperar=e.tiempo_ejecucion;
 		tiempoTotal = tiempoTotal + e.tiempo_ejecucion;//Se calcula el tiempo total que lleva el programa moviendo los procesos
 		e.tiempo_ejecucion = tiempoTotal;//Se aniade el tiempo total al tiempo del elemento solo para funcionalidad de imprimir
 		
-		queue(&finalizados,e);//Se inserta este proceso en la cola de procesos terminados
-		e=front(&listos);//Se saca SOLO la informacion del proceso siguiente a ejecutar
+		Queue(&finalizados,e);//Se inserta este proceso en la cola de procesos terminados
 		
-		printf("El sig. proceso es: %s",e.nombre);//Se imprime esa info
+		if(!Empty(&listos)){
+			e=Front(&listos);//Se saca SOLO la informacion del proceso siguiente a ejecutar
+			printf("El sig. proceso es: %s \n",e.nombre);//Se imprime esa info
+		}
+		else{
+			printf("Ya no hay procesos en la cola \n");
+		}
+			
+		Sleep(esperar);//Se espera el tiempo necesario que costaba hacer ese proceso
 		
-		Sleep(e.tiempo_ejecucion);//Se espera el tiempo necesario que costaba hacer ese proceso
 	}
-	
-	while(!empty(&finalizados))//Loop usado para imprimir todos los procesos que se realizaro
-	{
-		e=dequeue(&finalizados);
-		printf("Nombre: %s Tiempo Total: %s \n",e.nombre,e.tiempo_ejecucion);
+	printf("Lista de procesos realizados: \n");
+	while(!Empty(&finalizados)){//Loop usado para imprimir todos los procesos que se realizaro{
+		e=Dequeue(&finalizados);
+		printf("Nombre: %s Tiempo Total: %i \n",e.nombre,e.tiempo_ejecucion);
 	}
 
-	destroy(&listos);
-	destroy(&finalizados);
+	Destroy(&listos);
+	Destroy(&finalizados);
 	return 1;
 }
