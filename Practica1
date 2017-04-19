@@ -125,7 +125,7 @@ void orden(pila* guarda,pila* inver,float* valores){
     elemento e;
     while(!empty(guarda)){
         e=pop(guarda);
-        if(e.c > 64){
+        if(e.c > 64 && e.c < 91){
         	e.n=valores[e.c-65];
 		}		
         push(e,inver);
@@ -177,7 +177,7 @@ void suma(pila* sum,pila* inver, float* valores){
 	elemento e;
 	if(!empty(inver)){
 		e=pop(inver);
-		if(e.c > 64){
+		if(e.c > 64 && e.c < 91){
 			push(e,sum);
 			suma(sum,inver,valores);
 		}
