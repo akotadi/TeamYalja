@@ -22,8 +22,8 @@ int main(){
 	cola clientes,usuarios,preferentes;
 	cola* cajeras;
 	int* tiempo_cajeras;
-	int tc,tu,tp,tiempo=0,clientes_cont=0,cont_usu=0,n;
-	elemento e,r;
+	int tc,tu,tp,tiempo=0,clientes_cont=0,clientes_atend=0,cont_usu=0,n,cajera_num;
+	elemento e;
 
 	printf("Numero de cajeras: \n");
 	scanf("%i",&n);
@@ -50,63 +50,59 @@ int main(){
 	Initialize(&clientes);
 	Initialize(&usuarios);
 
-	while(clientes_cont < 10){
+	while(clientes_atend < 7){
 		Sleep(TIEMPO_BASE);
 		tiempo++;
 		//printf("Trono aqui 0\n");
 		for (int i = 0; i < n; ++i){
 			if((TIEMPO_BASE*tiempo) % tiempo_cajeras[i]   == 0){//Se va recorriendo cada una de las cajas para ver si ya estan en tiempo de desencolar
+				//printf("Es tiempo para la cajera no. %i\n", i+1);
 				if (!Empty(&cajeras[i])){//Si no esta vacia, entonces desencola
+					//printf("La cajera no. %i NO esta vacia\n", i+1);
 					e=Dequeue(&cajeras[i]);
-					printf("Se atendio al cliente %i por la cajera %i \n",e.id,i);
+					printf("Se atendio al cliente %i (que es %c) por la cajera %i \n",e.id,e.status,i+1);
+					clientes_atend++;
 				}
 			}
 		}
 		//printf("Trono aqui 1\n");
+		if(clientes_atend == 10){
+			break;
+		}
 		
 		//Los preferentes tiene preferencia sobre cualquier otro usuario, por eso el while es hasta que ya no haya preferentes
 		while(!Empty(&preferentes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){//Mientras haya preferentes, haya alguna caja vacia y no hayan pasado mas de 5 pref o clientes sin pasar algun usuario
 			e=Dequeue(&preferentes);
-			Queue(&cajeras[checarVacia(cajeras,n)],e);//Se desencola de la cola original y se pasa a alguna cajera
+			cajera_num=checarVacia(cajeras,n);
+			Queue(&cajeras[cajera_num],e);//Se desencola de la cola original y se pasa a alguna cajera
 			cont_usu++;//Se incremeta en contador para checar que no pasen mas de 5 preferences o clientes sin que pase algun usuario
-			printf("preferente entro a caja\n");
+			printf("preferente entro a caja no. %i\n",cajera_num+1);
 		}
 
-		/*
-		printf("Trono aqui 2\n");
-		if(!Empty(&clientes))
-			printf("Bien\n");
-		printf("El valor regresado es: %i\n", checarVacia(cajeras,n));
-		*/
-		
-
 		while(!Empty(&clientes) && checarVacia(cajeras,n) != -1 && cont_usu < 5){	//Lo mismo que el otro
-			printf("Entro bien\n");
-			if(!Empty(&clientes))
-				printf("Bien\n");
-
-			r=Dequeue(&clientes); // NO SE QUE CHINGADOS SUCEDE AQUI CAGAJOOOOOO
-			printf("1era bien\n");
-			Queue(&cajeras[checarVacia(cajeras,n)],r);
-			printf("2da bien\n");
+			e=Dequeue(&clientes); // NO SE QUE CHINGADOS SUCEDE AQUI CAGAJOOOOOO
+			cajera_num=checarVacia(cajeras,n);
+			Queue(&cajeras[cajera_num],e);
 			cont_usu++;
-			printf("cliente entro a caja\n");
+			printf("cliente entro a caja no. %i\n",cajera_num+1);
 		}
 		//printf("Trono aqui 3\n");
 		while(!Empty(&usuarios) && checarVacia(cajeras,n) != -1){//Lo mismo
 			e=Dequeue(&usuarios);
-			Queue(&cajeras[checarVacia(cajeras,n)],e);
+			cajera_num=checarVacia(cajeras,n);
+			Queue(&cajeras[cajera_num],e);
 			//llega aqui despues de que ya hayan pasado 5 preferentes o clientes entonces el contador vuelve a cero
 			cont_usu=0;
 			if(!Empty(&preferentes) || !Empty(&clientes))
 				break;
-			printf("usuario entro a caja\n");
+			printf("usuario entro a caja no. %i\n",cajera_num+1);
 		}
 		//printf("Trono aqui 4\n");
 		//IFs usados para insertar elementos a las colas si es que es tiempo de que llegue alguien mas
 		if((TIEMPO_BASE * tiempo) % tc == 0){
 			clientes_cont++;
 			e.id=clientes_cont;
+			e.status='C';
 			Queue(&clientes,e);
 			printf("Se metio uno a clientes\n");
 		}
@@ -114,6 +110,7 @@ int main(){
 		if((TIEMPO_BASE * tiempo) % tu  == 0){
 			clientes_cont++;
 			e.id=clientes_cont;
+			e.status='U';
 			Queue(&usuarios,e);
 			printf("Se metio uno a usuarios\n");
 		}
@@ -121,6 +118,7 @@ int main(){
 		if((TIEMPO_BASE * tiempo) % tp  == 0){
 			clientes_cont++;
 			e.id=clientes_cont;
+			e.status='P';
 			Queue(&preferentes,e);
 			printf("Se metio uno a preferentes\n");
 		}
