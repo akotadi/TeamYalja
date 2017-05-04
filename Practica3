@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <math.h>
+//#include "TADListaDin.h"
+
+int hash(char* palabra, int tamanio, int longitud){
+	double suma=0;
+	int final=0;
+	int llave,aux;
+
+	for (int i = 0; i < longitud; ++i){
+		if(palabra[i] > 90)
+			aux=palabra[i]-96;
+		else
+			aux=palabra[i]-64;
+		printf("Longitud adentro es:%i \n",longitud-(i+1));
+		suma = suma + (aux*(pow(29,longitud-(i+1))));
+		printf("%i * %f \n",aux,pow(29,longitud-(i+1)));
+	}
+	//printf("La suma es de: %f\n", suma);
+	final=(int)suma;
+	//printf("Cambiado %i\n", final);
+	llave=final % tamanio;
+	printf("La llave es: %i\n",llave );
+	return 0;
+} 
+
+int main(){
+	/*
+	lista* tabla;
+	tabla=(lista*)malloc(300*sizeof(lista));
+	for (int i = 0; i < 300; ++i){
+		Initialize(&tabla[i]);
+	}*/
+	
+	FILE* archivo;
+ 	
+ 	char cadena[450];
+ 	char* ch;
+ 	int tam_tabla=701,llave,longitud=0,cont=0;
+ 	char tabla[10];
+ 	
+ 	for (int i = 0; i < 10; ++i){
+ 		tabla[i]='#';
+ 	}
+ 	
+ 	archivo = fopen("Glosario BIOQUANTUM.txt","r");
+ 	
+ 	if (archivo == NULL)
+ 		exit(1);
+ 	
+ 	while(!feof(archivo) && cont <5)
+ 	{
+ 		fgets(cadena,450,archivo);
+ 		ch=strtok(cadena,":");
+ 		if (ch != NULL) {
+  			printf("%s\n", ch);
+  			while(ch[longitud] != '\0'){
+  				longitud++;
+  			}
+  			printf("%i\n", longitud);
+  			
+  			llave=hash(ch,tam_tabla,longitud);
+  			if(tabla[llave] != '#')
+  				printf("Colision\n");
+ 			else
+ 				tabla[llave]='*';
+			
+  			ch = strtok(NULL, ":");
+  		}
+  		//break;
+  		cont++;
+  		longitud=0;
+ 	}
+    fclose(archivo);
+	return 1;
+}
