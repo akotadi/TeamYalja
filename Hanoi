@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <windows.h>
+
+void Dibujar (int n, char* A){
+	int d=0;
+	for(int i=0;A[i]!=-1&&i<n;i++)
+		d++;
+	printf("\n");
+	for(int i=0;i<=n-d;i++){
+		for(int j=0;j<n;j++)
+			printf("%c",32);
+		printf("%c",186);
+		printf("\n");
+	}
+	for(int i=0;i<d;i++){
+		for(int j=0;j<n-A[i];j++)
+			printf("%c",32);
+		for(int j=0;j<A[i];j++)
+			printf("%c",254);
+		for(int j=0;j<A[i];j++)
+			printf("%c",254);
+		printf("%c",254);
+		printf("\n");
+	}
+	printf("\n");
+}
+
+void Mostrar (int n, char* TorreInicial, char* TorreAuxiliar, char* TorreFinal){
+	system("cls");
+	for(int i=0;i<3;i++){
+		if(i==0)
+			printf("\nTorre  Inicial");
+		if(i==1)
+			printf("\nTorre  Auxiliar");
+		if(i==2)
+			printf("\nTorre  Final");
+		if(TorreInicial[n]==i+1)
+			Dibujar(n,TorreInicial);
+		if(TorreAuxiliar[n]==i+1)
+			Dibujar(n,TorreAuxiliar);
+		if(TorreFinal[n]==i+1)
+			Dibujar(n,TorreFinal);
+	}
+	Sleep(300);
+	//system("pause");
+	return;
+}
+
+void Mover (int n, char* A, char* B,char* C){
+	for(int i=n-1;i>0;i--){
+		B[i]=B[i-1];
+	}
+	B[0]=A[0];
+	for(int i=0;i<n-1;i++){
+		A[i]=A[i+1];
+		A[i+1]=-1;
+	}
+	Mostrar(n,A,C,B);
+	return;
+}
+
+void TorresHanoi (int n, int d, char* TorreInicial, char* TorreAuxiliar, char* TorreFinal){
+	if(d==1)
+    {
+        Mover(n,TorreInicial,TorreFinal,TorreAuxiliar);
+    }
+    else
+    {
+        TorresHanoi(n,d-1,TorreInicial,TorreFinal,TorreAuxiliar);
+        Mover(n,TorreInicial,TorreFinal,TorreAuxiliar);
+		TorresHanoi(n,d-1,TorreAuxiliar,TorreInicial,TorreFinal);
+    }
+    return;
+}
+
+
+
+int main (void){
+	int n, d, mov;
+	char* TorreInicial;
+	char* TorreAuxiliar;
+	char* TorreFinal;
+	printf("Introduzca el numero de discos: ");
+	scanf("%i",&n);
+	TorreInicial = (char*)malloc((n+1)*sizeof(int));
+	TorreAuxiliar = (char*)malloc((n+1)*sizeof(int));
+	TorreFinal = (char*)malloc((n+1)*sizeof(int));
+	for(int i=0;i<n;i++){
+		TorreInicial[i]=i+1;
+		TorreAuxiliar[i]=-1;
+		TorreFinal[i]=-1;
+	}
+	TorreInicial[n]=1;
+	TorreAuxiliar[n]=2;
+	TorreFinal[n]=3;
+	Mostrar(n,TorreInicial,TorreAuxiliar,TorreFinal);
+	TorresHanoi(n,d=n,TorreInicial,TorreAuxiliar,TorreFinal);
+	printf("El numero de movimientos necesarios son: %i",mov=pow(2,n)-1);
+	free(TorreInicial);
+	free(TorreAuxiliar);
+	free(TorreFinal);
+	return 0;
+}
